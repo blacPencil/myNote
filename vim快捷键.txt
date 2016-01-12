@@ -1,0 +1,214 @@
+sudo apt-get update 更新资源，安装之前更新。
+sudo管理员权限
+
+cd
+pwd 打印当前路径
+ls -l
+drwxr-xr-x 开头是d是，目录
+-rw-r--r-- 开头是- ，普通类型文件
+mkdir 创建目录
+
+i 默认在当前光标的位置前面插入东西
+a 在当前光标的位置后面插入东西
+A 本行的末尾插入字符
+I 行首插入
+o 自动到下一行插入
+O 当前行的上一行插入字符
+
+x 删除当前光标字符
+dd 删除一行
+u undo取消上一次操作
+
+:w 保存
+:q 退出
+
+-rw-r--r--
+-rwxr-xr-x  x表示可执行，r可读，w可写
+三组：当前用户名kiroro，当前用户组是staff。
+第一组：表示当前创建文件的用户
+第二组：跟这个用户在同一个用户组的权限
+第三组：任一用户，不是当前用户也不在当前用户组权限
+-rw-r--r--  1 kiroro  staff    70 12 28 15:50 a.c
+-rwxr-xr-x  1 kiroro  staff  8432 12 28 15:50 a.out
+
+:sp xxx.c 
+在vim中编辑两个文档,xxx.c是新建的文件名
+:set nu 显示行号
+ctrl+option+w+向上箭头   编辑上面的文档
+ctrl+option+w+向下箭头   编辑下面的文档
+
+2dd  剪切2行
+p 粘贴
+:wqa 保存所有的文件，并退出
+
+gcc max.c hello.c -o main.out
+-o是命名输出的可执行文件
+
+程序可以一次编译成xxx.o
+gcc -c min.c -o xxx.o
+下次直接连接，而不用重新编译，可以节省时间。提高效率
+效率：
+	提前将不常改动的函数，提前先编译好做成静态库。
+
+cat 查看代码
+
+make 编译命令
+make工具将大型的开发项目分成若干个模块
+make工具很清晰和很快捷的整理源文件
+make内部也是使用gcc
+
+创建 MakeFile
+注释# 
+一个个往下找，递归
+#this is make file
+main.out:max.o min.o hello.c
+	  gcc max.o min.o hello.c -o hello.out
+max.o:max.c 
+	  gcc -c max.c
+min.o:min.c
+	  gcc -c min.c
+
+直接执行make 就执行MakeFile里的
+
+当第一条指令执行成功（判断返回是不是0），直接执行第二条。
+gcc main.c -o main.out && ./main.out
+
+echo $?  返回0(是程序中写的return 0)，则执行成功
+	    返回其他数字，则执行失败。
+
+gcc main.c -o main.out && ./main.out
+只有前面命令返回0，才会执行后面语句
+
+
+#include <stdio.h>
+
+int main(int argv, char* argc[]){
+	printf("argv is %d \n", argv);
+	return 101;
+}
+输出 argv 显示 1
+
+若执行 ./main2.out -l -a 加两个参数，则输出 3
+
+#include <stdio.h>
+
+int main(int argv, char* argc[]){
+	int i;
+	for(i = 0; i < argv; i++){
+		printf("argc[%d] is %s \n", i, argc[i]); 
+	}
+	printf("argv is %d \n", argv);
+	return 101;
+}
+======输出========
+./m3.out -a -d adkgj
+argc[0] is ./m3.out 
+argc[1] is -a 
+argc[2] is -d 
+argc[3] is adkgj 
+argv is 4 
+
+——— kiroro/Documents/codes/linuxC/cio.c
+#include <stdio.h>
+/*
+   启动程序，默认会打开以下三个文件
+	stdin：向程序输入数据，标准默认是键盘
+	stdout：把数据输出，默认是显示器
+	stderr：标准错误流。
+	标准输入，输出，错误流
+   */
+int main()
+{
+	// printf();是下面函数的封装
+	// printf("please input the value a:\n" )
+	fprintf(stdout,"please input the value a:\n" );
+	int a;
+	// scanf()  scanf("%d", &a);就是下面的函数
+	fscanf(stdin, "%d", &a);
+
+	if(a<0)
+	{
+		fprintf(stderr,"the value must >0 \n");
+		return 1;
+	}
+	return 0;	
+}
+
+
+linux 通道 = 管道
+管道，输入流，输出流的重定向机制
+===========输出流重定向===========
+ ./a.out 1>> a.txt
+把标准输出流重定向到 a.txt中
+>> 前面默认是1
+再次运行，是把内容 接到原来文件的后面 append，不会覆盖原来文件
+
+若是 单箭头 >  则新文件会覆盖原来文件。
+
+===========输入流重定向===========
+ ./a.out < input.txt
+
+===========错误流重定向===========
+  ./a.out 2> b.txt
+
+0是标准输出流
+1是标准输出流
+2是标准错误流
+
+管道原理及应用
+linux 系统 自带的小工具
+ls
+ls / 查看根目录
+ls /etc/ | grep ab
+grep 命令，查询文本文档中查询包含指定字符的内容，文本搜索命令。
+(|线表示管道，本来ls有标准输出流输出到终端，加|可以将输出重定向到其他应用程序（命令）中 作为输入)
+把前一个结果的输出流作为第二个命令的输入流，中间用管道连接起来。
+
+ps 查看进程
+ssh 通过终端远程登录linux，若是你启动了ssh服务
+ps -e | grep ssh
+
+应用管道把一些小工具结合起来变成更复杂的程序来使用
+./input.out | ./a.out
+
+=========input.c=========
+#include <stdio.h>
+
+int main()
+{
+	int flag=1;
+	int i;
+	int count=0;
+	int s=0;
+	while(flag){
+		scanf("%d",&i);
+		if(0==i)
+			break;
+		count++;
+		s += i;
+	}
+
+	printf("%d,%d\n",s,count);
+	return 0;
+}
+
+==========avg.c==========
+#include <stdio.h>
+
+int main()
+{
+	int s,n;
+	scanf("%d,%d", &s,&n);
+	float v=s/n;
+	printf("v=%f\n",v);
+	return 0;
+}
+
+
+
+
+
+
+
+
+
