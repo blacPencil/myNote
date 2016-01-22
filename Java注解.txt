@@ -1,0 +1,104 @@
+全面解析java注解
+
+1.注解能读懂别人的代码，特别是框架相关的代码
+2.让编程更加简洁，代码更加清晰。配置逻辑等去掉。
+
+自定义注解
+
+Java 1.5引入的
+
+概念：Java提供了一种源程序中的元素关联人和信息和任何元数据的途径和方法。
+
+1.Java中的常见注解
+2.注解分类
+3.自定义注解
+4.注解应用实战
+
+==================================================
+Java中的常见注解
+
+1.JDK自带注解
+@Override  @Deprecated   @Supprisewarnings
+- - -  - - - - - - - - - -
+public interface Person{
+	public String name();
+	public int age();
+	
+	//有人不会唱歌，不是所有的都要实现sing(),
+	// 这个方法过时了，要用@Deprecated，不能直接删掉，因为有些实现这个接口的有sing方法
+	
+	@Deprecated
+	public void sing();
+}
+- - -  - - - - - — - - - - - - - - -
+public class Teat {
+	// 用@SuppressWarnings忽略deprecation警告
+	@SuppressWarnings("deprecation")
+	public void sing() {
+		Person p = new Child();
+		// 会有警告
+		p.sing();
+	}
+}
+- - - -  - - — - - - - — - — - - — - - 
+==================================================
+2.Java第三方注解
+Spring ：@Autowired  @Service  @Repository
+Mybatis：@InsertProvider  @UpdateProvider @Options
+
+==================================================
+
+注解的分类
+1.按运行机制分：源码注解、编译时注解、运行时注解
+
+源码注解：注解只在源码当中出现，.class文件中没有。
+
+编译时注解：注解在源码和.class文件中存在，
+编译时注解有@Override  @Deprecated   @Supprisewarnings
+
+运行时注解：在运行阶段还起作用更甚至影响程序运行逻辑的注解
+如：@Autowired
+
+
+2.按照来源来分：JDK、第三方、自定义
+
+3.元注解：注解的注解
+
+==================================================
+
+自定义注解
+
+1.自定义注解的语法要求
+2.注解的注解（元注解）
+3.使用自定义注解
+4.解析注解
+
+元注解：@Target
+	  @Rentention
+	  @Inherited	
+	  @Document 
+
+使用自定义注解
+	使用注解的语法
+@<注解名>(<成员名1>=<成员值1>,<成员名1>=<成员值1>,…)
+
+public @interface Description{  //注解声明用@interface
+	String desc();   // 成员使用无参方式，无异常声明
+	String author();
+	int age() default 18; // 可以使用default指定一个默认值
+}
+
+@Description(desc=“I am”,author=“hello”,age=18)
+
+
+解析注解    程序代码：AnnotationTest-project
+	概念：通过反射获取类，函数或成员上的运行时注解信息，从而实现动态控制程序运行的逻辑。
+
+
+
+
+
+
+
+
+
