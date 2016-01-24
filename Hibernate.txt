@@ -1,0 +1,235 @@
+Hibernate初探之单表映射
+
+第一章：初识Hibernate
+1.什么是ORM
+2.Hibernate简介
+3.编写一个小例子
+
+- - - - -  - - - - - - - - - —  — - - - - 
+什么是ORM
+	ORM = Object Relationship Mapping 对象关系映射
+
+	利用面向对象思想编写的数据库应用程序最终都是把对象信息保存在关系型数据库中，于是要编写很对和底层数据库相关的SQL语句。
+	<<<<<与OOP思想格格不入>>>>>>
+
+写SQL语句有什么不好
+	1.不同数据库使用的SQL语法不同，PL/SQL   T/SQL
+	2.同样的功能在不同的数据库中有不同的实现方式，如分页SQL
+	3.程序过分依赖SQL,程序移植扩展很难。
+
+Hibernate就是一种ORM框架技术
+- - - - -  - - - - - - - - - —  — - - - - 
+Hibernate简介
+	是java领域一款ORM框架技术，对JDBC进行了非常轻量级的封装。
+
+Hibernate作为应用业务逻辑层 与 数据库层的中间的 持久化层。
+
+其他主流的ORM框架技术
+1.MyBatis：前身是iBatis
+2.Toplink：后被Oracle收购，并包装为Oracle AS TopLink
+3.EJB：属于JAVAEE的规范，但是是重量级，应用起来有点复杂。
+
+开发前部署
+	工具：1.Eclipse
+		2.Hibernate Tools for Eclipse Plugins
+		3.Hibernate Tools 是由JBoss推出的一个综合开发工具插件。
+
+
+编写一个Hibernate例子
+1.创建Hibernate的配置文件
+	hibernate.cfg.xml
+2.创建持久化类
+3.创建对象-关系映射文件
+4.通过Hibernate API编写访问数据库的代码
+
+导入一些jar包
+
+创建自己的library，经常用到的jar包
+偏好设置-Java-BuildPath-UserLibrary-new-add external jars
+项目中导入：项目-properties-java build path-libraries-add libraries
+
+
+Hibernate配置文档
+	利用插件自动生成
+	代码提示功能，需要导入dtd文档的支持
+
+需要添加5个属性
+	1.连接的数据库管理员
+	2.密码
+	3.指定数据库的驱动
+	4.访问数据库的地址
+	5.方言，mysql具体的方言
+    	<property name = "connction.username">root</property>
+    	<property name="connection.password"></property>
+    	<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+    	<property name="connection.url">jdbc:mysql:///hibernate?useUnicode=true&amp;characterEncoding=UTF-8</property>
+    	<property name="dialect">org.hibernate.MySQLDialect</property>
+
+
+创建持久化类   源码：Hibernate-Students
+创建对象-关系映射文件 	
+	创建 Hibernate XML Mapping file
+	把实体类，映射成为 一个数据库的一张表，字段为表的列
+	增加进配置文档 <maaping resource=“”/>
+
+使用JUnit进行测试
+	三个注解标签
+	@Test：测试方法
+	@Before：初始化方法，在执行一个测试方法前，先去执行Before下面的方法
+	@After：释放资源的标签。
+
+	before-test-after
+
+
+通过Hibernate API编写访问数据库的代码
+	1.创建配置对象
+	2.创建服务注册对象
+	3.创建会话工厂对象
+	4.打开会话
+	5.打开事务
+
+=========================================
+第二章：Hibernate进阶
+1.hibernate.cfg.xml常用配置
+2.session简介—会话
+3.transaction简介———事务
+4.session详解
+5.对象关系映射常用配置
+
+Hibernate常用配置
+	hibernate.cfg.xml 这个配置文档能够实现连接数据库，生成表结构。
+
+常见属性
+	hibernate.show_sql：是否把Hibernate运行时的SQL语句输出到控制台，编码阶段便于测试。一般设置为true
+
+	hibernate.format_sql：输出到控制台的SQL语句是排版。
+
+	hbm2ddl.auto：可以帮助由java代码生成数据库脚本，重新生成具体的表结构，create|update|create-drop|validate
+	create：把原有表删除，创建新的表结构。
+	update：更新表，原有表不会被删除
+
+	hibernate.default_schema：默认的数据库
+
+	hibernate.dialect：配置Hibernate数据库方言，Hibernate可针对特殊的数据库进行优化。
+
+以上：hibernate的前缀可以省略，即：hibernate.dialect等同dialect。
+
+- - - - - - - - - - — -  - - -  - - - —  — 
+session简介
+	1.Hibernate执行流程
+	configuration————读取配置文档 Hibernate.cfg.xml
+	SessionFactory——— 读取相应加载的映射文件 User.hbm.xml
+	Session———类似JDBC中的Connection
+	执行这些方法需要创建一个事务，方法执行完后需要关闭事务，session。
+
+	2.什么是session
+	不建议直接使用adbc的connection操作数据库，而是通过使用session操作数据库。
+
+	session可以理解为操作数据库的对象。
+
+	session与connection，是多对一关系，每个session都有一个与之对应的connection，一个connection不同时刻可以供多个session使用。
+	
+	把对象保存在关系数据库中需要调用session的各种方法。
+	如：save(),update(),delete(),createQuery()等。
+
+- - - - - - - - - - — -  - - -  - - - —  — 
+transaction简介
+	Hibernate对数据的操作都是封装在事务当中，并且默认是非自动提交的方式，所以session保存对象时，如果不开启事务，并且手工提交事务，对象并不会真正保存在数据库中。
+
+- - - - - - - - - - — -  - - -  - - - —  — 
+session详解（上）
+1.如何获取session对象
+	1）openSession
+	2）getCurrentSession
+	使用getCurrentSession需要在hibernate.cfg.xml文件中配置。
+	    	<property name="hibernate.current_session_context_class">thread</property>
+
+session详解（下）
+
+openSession 与 getCurrentSession的区别
+1.getCurrentSession在事务提交或者回滚之后会自动关闭，而openSession需要你手动关闭，如果使用openSession而没有手动关闭，多次之后导致连接池溢出。
+
+2.openSession每次创建都是新的session对象，getCurrentSession使用现有的对象，有点像单例模式。
+
+- - - - - - - - - - — -  - - -  - - - —  — 
+hbm配置文档常用设置
+关系映射文件
+1.<hibernate-mapping
+	sechema = “sechmaName”
+	`````
+	、>
+
+2.<class  />
+3.<id  />     主键生成策略
+
+========================================
+第三章 Hibernate单表操作
+1.单一主键
+2.基本类型
+3.对象类型
+4.组件属性
+5.单表操作 CRUD实例
+
+- - - - - - - - - - — -  - - -  - - - —  — 
+单一主键
+1.assigned 由java应用程序负责生成标识符（手工赋值）
+2.native 由底层数据库自动生成标识符，如 mysql用increment
+
+基本类型
+Hibernate映射类型		Java类型		标准SQL类型
+interger/int			java.lang.int	INTEGER
+
+对象类型
+Hibernate映射类型 	Java类型		标准SQL类型 	MySQL类型
+binary				byte[]		varchar		BLOB
+text					String		CLOB			TEXT
+等
+
+组件属性
+实体类中的某个属性属于用户自定义的某个类的对象
+	<component name=“address” /> 这个属性是用户自定义的，如类Address的对象address
+
+单表操作的增删改查
+保存对象 save
+update
+delete
+get/load
+
+get与load区别
+get：在调用之后立即向数据库发出sql语句，返回持久化对象。
+load：在调用后返回一个代理对象，该对象只保存了实体对象的id，直到使用对象的非主键属性时才会发出sql语句。
+
+=================================================
+课程二：Hibernate一对多映射
+
+映射类型：一对多、多对一、一对一、多对多。
+
+一对多 映射简介
+    在数据库中，可以通过添加主外键的关联，表现一对多的关系。
+
+    通过在一方持有多方的集合实现，即在一端中使用<set>元素表示持有”多”的一端的对象。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
